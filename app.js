@@ -5,6 +5,11 @@ const app = express();
 const puppeteerExtra = require('puppeteer-extra');
 const Stealth = require('puppeteer-extra-plugin-stealth');
 
+const cookies = [{
+  'name': 'SOCS',
+  'value': 'CAESHAgBEhJnd3NfMjAyMzA2MTItMF9SQzIaAmZpIAEaBgiAzK6kBg'
+}];
+
 puppeteerExtra.use(Stealth());
 
 app.get('/', function (req, res) {
@@ -40,7 +45,7 @@ const getDirectLink = async (url) => {
   });
 
   const page = await browser.newPage();
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
   await page.setViewport({
     width: 1280,
     height: 720
@@ -50,13 +55,15 @@ const getDirectLink = async (url) => {
     waitUntil: 'networkidle0',
   });
 
+  await page.setCookie(...cookies);
+
   await new Promise(r => setTimeout(r, 1000)); // wait 1 seconds
 
   await page.mouse.move(0, 0);
   await page.mouse.down();
   const totalMovement = randomInt(4, 8);
 
-  for (let i = 1; i <= randomInt; i++) {
+  for (let i = 1; i <= totalMovement; i++) {
     await page.mouse.move(randomInt(100, 600), randomInt(100, 600));
     await new Promise(r => setTimeout(r, 500)); // wait 0,5 seconds
   }
@@ -81,7 +88,7 @@ const getDirectLink = async (url) => {
   // await page.click(captchaBtn);
   await page.waitForNavigation();
 
-  await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds
+  // await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds
 
   const content = await page.content();
   console.log(content);
