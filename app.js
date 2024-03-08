@@ -30,6 +30,7 @@ app.listen(PORT, () => {
 });
 
 const getDirectLink = async (url) => {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   const proxyServer = 'http://paorsnok-rotate:3gelpkdyzj63@p.webshare.io:80';
   const browser = await puppeteerExtra.launch({
     headless: true,
