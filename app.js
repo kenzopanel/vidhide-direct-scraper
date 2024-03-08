@@ -30,9 +30,10 @@ app.listen(PORT, () => {
 });
 
 const getDirectLink = async (url) => {
+  const proxyServer = 'http://paorsnok-rotate:3gelpkdyzj63@p.webshare.io:80';
   const browser = await puppeteerExtra.launch({
     headless: true,
-    args: ['--no-sandbox', '--ignore-certificate-errors']
+    args: ['--no-sandbox', '--ignore-certificate-errors', `--proxy-server=${proxyServer}`]
   });
 
   const page = await browser.newPage();
