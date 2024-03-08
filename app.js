@@ -4,7 +4,6 @@ const express = require("express");
 const app = express();
 const puppeteerExtra = require('puppeteer-extra');
 const Stealth = require('puppeteer-extra-plugin-stealth');
-const proxyChain = require('proxy-chain');
 
 puppeteerExtra.use(Stealth());
 
@@ -30,14 +29,14 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-const getDirectLink = async (url) => {
-  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
-  let proxyServer = 'http://paorsnok-rotate:3gelpkdyzj63@p.webshare.io:80';
-  proxyServer = await proxyChain.anonymizeProxy(proxyServer);
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
+const getDirectLink = async (url) => {
   const browser = await puppeteerExtra.launch({
     headless: true,
-    args: ['--no-sandbox', '--ignore-certificate-errors', `--proxy-server=${proxyServer}`]
+    args: ['--no-sandbox', '--ignore-certificate-errors']
   });
 
   const page = await browser.newPage();
@@ -51,22 +50,50 @@ const getDirectLink = async (url) => {
     waitUntil: 'networkidle0',
   });
 
+  await new Promise(r => setTimeout(r, 1000)); // wait 1 seconds
+
+  await page.mouse.move(0, 0);
+  await page.mouse.down();
+  const totalMovement = randomInt(4, 8);
+
+  for (let i = 1; i <= randomInt; i++) {
+    await page.mouse.move(randomInt(100, 600), randomInt(100, 600));
+    await new Promise(r => setTimeout(r, 500)); // wait 0,5 seconds
+  }
+
+  await page.mouse.up();
+  await new Promise(r => setTimeout(r, 1000)); // wait 1 seconds
+
   const captchaBtn = '.g-recaptcha';
-  await page.waitForSelector(captchaBtn);
-  await page.click(captchaBtn);
+  const captcha = await page.waitForSelector(captchaBtn);
+  const rect = await page.evaluate(el => {
+    const {
+      x,
+      y
+    } = el.getBoundingClientRect();
+    return {
+      x,
+      y
+    };
+  }, captcha);
+
+  await page.mouse.click(rect.x + 50, rect.y + 50);
+  // await page.click(captchaBtn);
   await page.waitForNavigation();
+
+  await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds
 
   const content = await page.content();
   console.log(content);
 
-  let link = await page.evaluate(
-    () =>
-    Array.from(document.querySelectorAll('a'))
-    .filter(el => el.innerText === 'Direct Download Link')
-    .map(el => el.getAttribute('href'))
-  );
+  // let link = await page.evaluate(
+  //   () =>
+  //   Array.from(document.querySelectorAll('a'))
+  //   .filter(el => el.innerText === 'Direct Download Link')
+  //   .map(el => el.getAttribute('href'))
+  // );
 
   await browser.close();
 
-  return link;
+  return 'link';
 };
