@@ -51,6 +51,9 @@ const getDirectLink = async (url) => {
   await page.click(captchaBtn);
   await page.waitForNavigation();
 
+  const content = await page.content();
+  console.log(content);
+
   let link = await page.evaluate(
     () =>
     Array.from(document.querySelectorAll('a'))
